@@ -2,12 +2,25 @@ import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-function ContactForm() {
+export default function ContactForm() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
-    const [captchaValue, setCaptchaValue] = useState(null); // Stocke le token CAPTCHA
+    const [captchaValue, setCaptchaValue] = useState(null);
     const [isSending, setIsSending] = useState(false);
+
+    // Style commun pour les inputs
+    const inputStyle = {
+        width: "100%",
+        padding: "0.8rem 1rem",
+        borderRadius: "12px",
+        background: "rgba(80, 140, 255, 0.05)",
+        border: "1px solid rgba(80, 140, 255, 0.2)",
+        color: "#c8d8ff",
+        fontSize: "0.95rem",
+        outline: "none",
+        transition: "all 0.2s ease",
+    };
 
     const handleCaptchaChange = (value) => {
         setCaptchaValue(value);
@@ -15,19 +28,13 @@ function ContactForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!captchaValue) {
             alert('Veuillez valider le CAPTCHA avant de soumettre le formulaire.');
             return;
         }
 
         setIsSending(true);
-
-        const templateParams = {
-            name: name,
-            email: email,
-            message: message,
-        };
+        const templateParams = { name, email, message };
 
         try {
             await emailjs.send(
@@ -42,73 +49,155 @@ function ContactForm() {
             setMessage('');
             setCaptchaValue(null);
         } catch (error) {
-            alert('Erreur lors de l\'envoi de l\'email. Réessayez plus tard.');
+            alert('Erreur lors de l\'envoi de l\'email.');
         } finally {
             setIsSending(false);
         }
     };
 
     return (
-        <section className="bg-base-200 flex justify-center items-center">
-            <div className="w-full max-w-lg bg-base-200 p-8 rounded-lg">
-                <h2 className="text-4xl font-bold text-center mb-6">Contactez-moi</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="form-control">
-                        <label htmlFor="name" className="label">
-                            <span className="label-text font-semibold">Nom:</span>
-                        </label>
+        <section id="contact" style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            padding: "8rem 1rem 4rem", 
+            scrollMarginTop: "2rem" 
+        }}>
+            <div style={{
+                width: "100%",
+                maxWidth: "600px",
+                padding: "2.5rem",
+                borderRadius: "24px",
+                border: "1px solid rgba(80, 140, 255, 0.15)",
+                background: "rgba(13, 17, 23, 0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.2)"
+            }}>
+                <h2 style={{
+                    fontSize: "2rem",
+                    fontWeight: 700,
+                    color: "#c8d8ff",
+                    textAlign: "center",
+                    marginBottom: "2rem",
+                    letterSpacing: "-0.02em"
+                }}>
+                    Envoyez-moi un <span style={{ color: "#5a8fff" }}>Message</span>
+                </h2>
+
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    
+                    {/* Nom */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <label style={{ fontSize: "0.85rem", color: "rgba(160,190,255,0.6)", fontWeight: 600, marginLeft: "4px" }}>NOM</label>
                         <input
                             type="text"
-                            id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className="input input-bordered w-full"
+                            placeholder="Votre nom"
+                            style={inputStyle}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = "#5a8fff";
+                                e.target.style.boxShadow = "0 0 15px rgba(90,143,255,0.15)";
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(80, 140, 255, 0.2)";
+                                e.target.style.boxShadow = "none";
+                            }}
                         />
                     </div>
-                    <div className="form-control">
-                        <label htmlFor="email" className="label">
-                            <span className="label-text font-semibold">Email:</span>
-                        </label>
+
+                    {/* Email */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <label style={{ fontSize: "0.85rem", color: "rgba(160,190,255,0.6)", fontWeight: 600, marginLeft: "4px" }}>EMAIL</label>
                         <input
                             type="email"
-                            id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="input input-bordered w-full"
+                            placeholder="votre@email.com"
+                            style={inputStyle}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = "#5a8fff";
+                                e.target.style.boxShadow = "0 0 15px rgba(90,143,255,0.15)";
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(80, 140, 255, 0.2)";
+                                e.target.style.boxShadow = "none";
+                            }}
                         />
                     </div>
-                    <div className="form-control">
-                        <label htmlFor="message" className="label">
-                            <span className="label-text font-semibold">Message:</span>
-                        </label>
+
+                    {/* Message */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <label style={{ fontSize: "0.85rem", color: "rgba(160,190,255,0.6)", fontWeight: 600, marginLeft: "4px" }}>MESSAGE</label>
                         <textarea
-                            id="message"
+                            rows="4"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             required
-                            className="textarea textarea-bordered w-full"
+                            placeholder="Comment puis-je vous aider ?"
+                            style={{ ...inputStyle, resize: "none" }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = "#5a8fff";
+                                e.target.style.boxShadow = "0 0 15px rgba(90,143,255,0.15)";
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = "rgba(80, 140, 255, 0.2)";
+                                e.target.style.boxShadow = "none";
+                            }}
                         />
                     </div>
 
-                    {/* Intégration de reCAPTCHA */}
-                    <div className="form-control">
+                    {/* CAPTCHA - On centre le widget */}
+                    <div style={{ 
+                        display: "flex", 
+                        justifyContent: "center", 
+                        margin: "0.5rem 0",
+                        transform: "scale(0.9)", // Légère réduction pour mobile
+                    }}>
                         <ReCAPTCHA
                             sitekey={"6LcxApoqAAAAAFhEv_exwO6F7vnShnUmmlzhk2af"}
                             onChange={handleCaptchaChange}
+                            theme="dark" // Thème sombre pour le Captcha
                         />
                     </div>
 
-                    <div className="form-control">
-                        <button type="submit" className="btn btn-primary w-full" disabled={isSending}>
-                            {isSending ? 'Envoi en cours...' : 'Envoyer'}
-                        </button>
-                    </div>
+                    {/* Bouton Submit */}
+                    <button 
+                        type="submit" 
+                        disabled={isSending}
+                        style={{
+                            padding: "1rem",
+                            borderRadius: "12px",
+                            border: "none",
+                            background: isSending 
+                                ? "rgba(80,140,255,0.2)" 
+                                : "linear-gradient(135deg, #3a6fff 0%, #1a4fd6 100%)",
+                            color: isSending ? "rgba(255,255,255,0.5)" : "#fff",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: isSending ? "not-allowed" : "pointer",
+                            transition: "all 0.3s ease",
+                            boxShadow: isSending ? "none" : "0 0 20px rgba(58, 111, 255, 0.3)",
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!isSending) {
+                                e.target.style.transform = "translateY(-2px)";
+                                e.target.style.boxShadow = "0 5px 25px rgba(58, 111, 255, 0.4)";
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isSending) {
+                                e.target.style.transform = "translateY(0)";
+                                e.target.style.boxShadow = "0 0 20px rgba(58, 111, 255, 0.3)";
+                            }
+                        }}
+                    >
+                        {isSending ? 'Transmission en cours...' : 'Envoyer le message'}
+                    </button>
                 </form>
             </div>
         </section>
     );
 }
-
-export default ContactForm;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function AjustementEcran() {
+export default function AjustementEcran() {
     const [windowSize, setWindowSize] = useState({
         width: window.innerWidth,
         height: window.innerHeight,
@@ -20,5 +20,3 @@ function AjustementEcran() {
 
     return windowSize;
 }
-
-export default AjustementEcran;
