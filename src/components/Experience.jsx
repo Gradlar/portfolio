@@ -91,7 +91,7 @@ const ExpCard = ({ title, role, items, description }) => {
 const Experience = () => {
     const experiences = [
         {
-            title: "CA2BM — Communauté d'Agglomération des 2 Baies en Montreuillois (Stage)",
+            title: "CA2BM — Communauté d'Agglomération des 2 Baies en Montreuillois (Alternance)",
             role: "Développeur — Service informatique",
             description: "J'ai contribué au développement de DechPilot, une application web interne dédiée à la gestion et au suivi des pesées dans les déchetteries de la collectivité.",
             items: [

@@ -7,6 +7,7 @@ import imageProjetBDD      from "../assets/BDDProjet.jpg";
 import imageProjetAgile    from "../assets/AgileProjet.png";
 import imageProjetIris     from "../assets/IrisProjet.png";
 import imageProjetDechPilot from "../assets/DechPilotProjet.jpg";
+import imageProjetCheqa from "../assets/CheqaProjet.jpg";
 
 // ── Chip de techno (Style Cyber) ─────────────────────────────────────────────
 const Tag = ({ children }) => (
@@ -191,10 +192,6 @@ export default function Projects() {
                 onImageClick={() => openModal(imageProjetDechPilot)}
                 extra={
                     <>
-                        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap", margin: "1.5rem 0" }}>
-                            <EcoCard label="Impact Mensuel"  value="30 000 €"  sub="Optimisation flux" />
-                            <EcoCard label="Impact Annuel"    value="360 000 €" sub="Ressources préservées" />
-                        </div>
                         <MoreLink href="https://github.com/Gradlar" />
                     </>
                 }
@@ -216,7 +213,30 @@ export default function Projects() {
                 Calculateur de trajectoires multi-critères utilisant les graphes. Analyse en temps réel du coût, des émissions de CO₂ et de la durée via Dijkstra et Bellman-Ford.
             </ProjectCard>
 
-            {/* ... Répéter pour les autres ProjectCard ... */}
+            <Divider />
+
+            <ProjectCard
+                image={imageProjetCheqa}
+                alt="Projet CHEQA"
+                title="CHEQA"
+                tags={["React", "Node.js", "Agile", "Full Stack", "Scrum"]}
+                reverse
+                onImageClick={() => openModal(imageProjetCheqa)}
+                extra={
+                    <>
+                        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap", margin: "1.5rem 0" }}>
+                            <EcoCard label="Durée"      value="1 sem."  sub="Livraison sprint" />
+                            <EcoCard label="Équipe"     value="× 5"     sub="Développeurs" />
+                        </div>
+                        <MoreLink href="https://github.com/Gradlar" />
+                    </>
+                }
+            >
+                Application web développée en une semaine pour un porteur de projet externe,
+                dans le cadre d'un projet universitaire à Lille. Travail en équipe de 5 développeurs
+                selon une méthodologie agile (Scrum), de la conception jusqu'à la livraison,
+                avec itérations quotidiennes et revue de sprint finale.
+            </ProjectCard>
             
             <div style={{ paddingBottom: "8rem" }} />
 
