@@ -236,32 +236,25 @@ const Competences = () => {
 
     const softManiereDetre = [
         {
-            icon: "🧭",
-            title: "Posture professionnelle",
-            situation: "En alternance à la CA2BM, j'ai intégré une équipe de développeurs expérimentés dès le premier jour, avec des responsabilités réelles sur le projet CEVDPilot.",
-            analyse: "J'ai rapidement adopté les codes de l'entreprise : ponctualité, autonomie sur mes tâches, prise de notes en réunion et respect des process internes.",
-            profil: "Je m'adapte naturellement aux environnements structurés et perçois le cadre professionnel comme un levier de progression, pas une contrainte.",
-        },
-        {
             icon: "🧘",
             title: "Gestion du stress",
-            situation: "Lors du projet CHEQA, livraison d'une application cliente en une semaine avec une équipe de 5 développeurs.",
-            analyse: "Face aux imprévus techniques, j'ai appris à prioriser les fonctionnalités critiques et à communiquer clairement sur les blocages plutôt que de les gérer seul.",
-            profil: "Le stress me pousse à structurer mes priorités. Je tends à décomposer les problèmes complexes en tâches actionnables pour reprendre le contrôle.",
+            situation: "Lors du projet CHEQA, livraison en une semaine avec 5 développeurs.",
+            analyse: "J'ai appris à prioriser les fonctionnalités critiques et à communiquer clairement sur les blocages.",
+            profil: "Le stress me pousse à décomposer les problèmes complexes en tâches actionnables.",
         },
         {
             icon: "🔄",
             title: "Adaptabilité",
-            situation: "À la CA2BM, j'ai rejoint un projet existant avec une base de code déjà en place, des conventions établies et des choix techniques à respecter.",
-            analyse: "J'ai su monter en compétences rapidement sur les outils internes et m'intégrer sans imposer mes habitudes, tout en apportant des propositions d'amélioration.",
-            profil: "Je me sens à l'aise dans des environnements nouveaux. La curiosité technique me permet de m'adapter sans attendre d'avoir tout compris avant d'agir.",
+            situation: "À la CA2BM, j'ai transformé des codes Python existants en code Java Spring JPA.",
+            analyse: "J'ai su monter rapidement en compétences sur les nouveaux outils et conventions.",
+            profil: "Je me sens à l'aise pour apprendre de nouvelles technos. La curiosité technique me permet d'avancer sans tout comprendre avant d'agir.",
         },
         {
             icon: "💪",
             title: "Engagement & responsabilités",
-            situation: "Sur CEVDPilot, j'ai été responsable de modules complets — de la conception de l'API à l'interface — avec un impact financier réel (360 000 €/an d'optimisation).",
-            analyse: "Savoir que mon travail avait un impact concret sur l'entreprise a renforcé mon sens des responsabilités et mon exigence sur la qualité du code livré.",
-            profil: "Je m'investis pleinement dès lors que je comprends le sens de ma contribution. L'impact réel est un moteur fort pour moi.",
+            situation: "Sur CEVDPilot, j'ai été responsable de modules complets avec un impact financier réel (360 000 €/an d'optimisation).",
+            analyse: "Savoir que mon travail avait un impact concret a renforcé mon sens des responsabilités.",
+            profil: "Je m'investis pleinement quand je comprends le sens de ma contribution.",
         },
     ];
 
@@ -269,23 +262,23 @@ const Competences = () => {
         {
             icon: "🗣️",
             title: "Communication professionnelle",
-            situation: "Présentations de sprint à la CA2BM et restitution du projet CHEQA devant un porteur de projet externe.",
-            analyse: "J'ai travaillé ma capacité à vulgariser des choix techniques devant des interlocuteurs non-développeurs, en adaptant le niveau de détail au public.",
-            profil: "Je préfère une communication directe et illustrée par des exemples concrets. L'oral en contexte préparé est un exercice dans lequel je progresse régulièrement.",
+            situation: "Présentations du projet CEVDPilot. Présentations du projet CHEQA devant le porteur de projet externe.",
+            analyse: "J'ai travaillé ma capacité à vulgariser les choix techniques en adaptant le niveau de détail au public.",
+            profil: "Je préfère une communication directe et illustrée par des exemples concrets.",
         },
         {
             icon: "👂",
             title: "Écoute & reformulation",
-            situation: "Lors des daily stand-ups en alternance et des ateliers de cadrage du projet CHEQA avec le porteur de projet.",
-            analyse: "Reformuler les besoins du client m'a permis d'éviter plusieurs malentendus et de m'assurer que les fonctionnalités développées correspondaient aux attentes réelles.",
-            profil: "J'écoute avant de répondre. La reformulation est pour moi un réflexe pour valider la compréhension mutuelle avant d'agir.",
+            situation: "Lors des ateliers de cadrage du projet CHEQA avec le porteur de projet.",
+            analyse: "Reformuler les besoins du client m'a permis d'éviter les malentendus.",
+            profil: "J'écoute avant de répondre. La reformulation est mon réflexe pour valider la compréhension mutuelle.",
         },
         {
             icon: "✅",
             title: "Réception des feedbacks",
-            situation: "Revues de code régulières à la CA2BM par des développeurs seniors sur mes pull requests GitHub.",
-            analyse: "Les retours, parfois exigeants, m'ont permis d'améliorer significativement la qualité de mon code. J'ai appris à distinguer critique du code et critique personnelle.",
-            profil: "Je reçois le feedback comme un outil de progression. Je note systématiquement les retours récurrents pour ne pas reproduire les mêmes erreurs.",
+            situation: "Feedback des utilisateurs de CEVDPilot sur l'interface.",
+            analyse: "Les utilisateurs trouvaient certains éléments graphiques confus. J'ai modifié l'affichage et les couleurs.",
+            profil: "Je reçois le feedback comme une chance de mieux servir les utilisateurs.",
         },
     ];
 
@@ -293,23 +286,23 @@ const Competences = () => {
         {
             icon: "🤝",
             title: "Travail en équipe",
-            situation: "Projet CHEQA : 5 développeurs, 1 semaine, livraison à un client réel. Répartition des tâches, synchronisation quotidienne, intégration continue.",
-            analyse: "J'ai appris à ne pas travailler en silo, à anticiper les dépendances entre les tâches des autres et à communiquer proactivement sur mes blocages.",
-            profil: "Je fonctionne mieux en équipe qu'en isolation. La dynamique de groupe me stimule et je m'implique naturellement dans la cohésion du collectif.",
+            situation: "Projet CHEQA : 5 développeurs, 1 semaine, livraison à un client réel.",
+            analyse: "J'ai appris à ne pas travailler en silo et à anticiper les dépendances entre les tâches.",
+            profil: "Je fonctionne mieux en équipe. La dynamique de groupe me stimule.",
         },
         {
             icon: "⚡",
             title: "Prise d'initiative",
-            situation: "Sur CEVDPilot, j'ai proposé et mis en place une couche de validation des données côté API sans que cela soit initialement prévu dans les spécifications.",
-            analyse: "Cette initiative a été validée par le tuteur et intégrée au projet, réduisant les erreurs de saisie en production. Elle m'a aussi valu plus d'autonomie par la suite.",
-            profil: "Je n'attends pas qu'on me demande d'améliorer quelque chose si je vois un point de fragilité. L'initiative est pour moi une responsabilité, pas une prise de risque.",
+            situation: "Sur CEVDPilot, j'ai proposé une couche de validation des données côté API.",
+            analyse: "Cette initiative a réduit les erreurs de saisie en production et m'a valu plus d'autonomie.",
+            profil: "Je n'attends pas qu'on me demande d'améliorer quelque chose si je vois un problème.",
         },
         {
             icon: "🔧",
             title: "Gestion des désaccords",
-            situation: "Lors du projet CHEQA, désaccord sur le choix de la stack technique entre deux membres de l'équipe en début de sprint.",
-            analyse: "J'ai proposé de lister les critères objectifs (délai, compétences disponibles, maintenabilité) pour trancher collectivement, ce qui a permis de débloquer la situation sans tension.",
-            profil: "Face aux désaccords, je cherche d'abord à comprendre la position de l'autre avant de défendre la mienne. J'utilise les faits et critères concrets comme terrain neutre.",
+            situation: "Lors du projet CHEQA, désaccord sur la stack technique en début de sprint.",
+            analyse: "J'ai proposé de lister les critères objectifs pour trancher collectivement.",
+            profil: "Je cherche d'abord à comprendre la position de l'autre. J'utilise les faits comme terrain neutre.",
         },
     ];
 
