@@ -1,15 +1,60 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import emailjs from '@emailjs/browser';
-import ReCAPTCHA from 'react-google-recaptcha';
+
+// Import du composant Altcha
+import 'altcha';
+
+// Sub-composant Altcha encapsulé
+const AltchaWidget = forwardRef(({ onStateChange }, ref) => {
+    const widgetRef = useRef(null);
+    const [value, setValue] = useState(null);
+
+    useImperativeHandle(ref, () => ({
+        get value() {
+            return value;
+        }
+    }), [value]);
+
+    useEffect(() => {
+        const handleStateChange = (ev) => {
+            if ('detail' in ev) {
+                // ev.detail.payload contient la chaîne de preuve en cas de succès
+                setValue(ev.detail.payload || null);
+                onStateChange?.(ev);
+            }
+        };
+
+        const currentWidget = widgetRef.current;
+        if (currentWidget) {
+            currentWidget.addEventListener('statechange', handleStateChange);
+            return () => currentWidget.removeEventListener('statechange', handleStateChange);
+        }
+    }, [onStateChange]);
+
+    return (
+        <altcha-widget
+            ref={widgetRef}
+            configuration={JSON.stringify({
+                test: true, // Mode test local sans appel serveur distant
+            })}
+            style={{
+                "--altcha-color-bg": "rgba(80, 140, 255, 0.05)",
+                "--altcha-color-text": "#c8d8ff",
+                "--altcha-color-border": "rgba(80, 140, 255, 0.2)",
+                "--altcha-border-radius": "12px",
+            }}
+        ></altcha-widget>
+    );
+});
 
 export default function ContactForm() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
-    const [captchaValue, setCaptchaValue] = useState(null);
     const [isSending, setIsSending] = useState(false);
 
-    // Style commun pour les inputs
+    const altchaRef = useRef(null);
+
     const inputStyle = {
         width: "100%",
         padding: "0.8rem 1rem",
@@ -22,14 +67,12 @@ export default function ContactForm() {
         transition: "all 0.2s ease",
     };
 
-    const handleCaptchaChange = (value) => {
-        setCaptchaValue(value);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!captchaValue) {
-            alert('Veuillez valider le CAPTCHA avant de soumettre le formulaire.');
+
+        // On vérifie la valeur exposée par la ref imperative du widget
+        if (!altchaRef.current?.value) {
+            alert('Veuillez valider la vérification anti-robot.');
             return;
         }
 
@@ -47,7 +90,6 @@ export default function ContactForm() {
             setName('');
             setEmail('');
             setMessage('');
-            setCaptchaValue(null);
         } catch (error) {
             alert('Erreur lors de l\'envoi de l\'email.');
         } finally {
@@ -149,18 +191,9 @@ export default function ContactForm() {
                         />
                     </div>
 
-                    {/* CAPTCHA - On centre le widget */}
-                    <div style={{ 
-                        display: "flex", 
-                        justifyContent: "center", 
-                        margin: "0.5rem 0",
-                        transform: "scale(0.9)", // Légère réduction pour mobile
-                    }}>
-                        <ReCAPTCHA
-                            sitekey={"6LcxApoqAAAAAFhEv_exwO6F7vnShnUmmlzhk2af"}
-                            onChange={handleCaptchaChange}
-                            theme="dark" // Thème sombre pour le Captcha
-                        />
+                    {/* ALTCHA CAPTCHA */}
+                    <div style={{ display: "flex", justifyContent: "center", margin: "0.5rem 0" }}>
+                        <AltchaWidget ref={altchaRef} />
                     </div>
 
                     {/* Bouton Submit */}
@@ -180,18 +213,6 @@ export default function ContactForm() {
                             cursor: isSending ? "not-allowed" : "pointer",
                             transition: "all 0.3s ease",
                             boxShadow: isSending ? "none" : "0 0 20px rgba(58, 111, 255, 0.3)",
-                        }}
-                        onMouseEnter={(e) => {
-                            if (!isSending) {
-                                e.target.style.transform = "translateY(-2px)";
-                                e.target.style.boxShadow = "0 5px 25px rgba(58, 111, 255, 0.4)";
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (!isSending) {
-                                e.target.style.transform = "translateY(0)";
-                                e.target.style.boxShadow = "0 0 20px rgba(58, 111, 255, 0.3)";
-                            }
                         }}
                     >
                         {isSending ? 'Transmission en cours...' : 'Envoyer le message'}
