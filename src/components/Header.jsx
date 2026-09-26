@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { HashLink } from 'react-router-hash-link';
+import { NavLink, useLocation } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
 
 export default function Header() {
     const [scrolled, setScrolled] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 30);
@@ -16,14 +17,12 @@ export default function Header() {
         if (burgerCheckbox) burgerCheckbox.checked = false;
     };
 
-    // Chemins mis à jour pour correspondre à tes Routes
     const navLinks = [
         { label: "Projets",     to: "/projets" },
         { label: "Expériences", to: "/experiences" },
         { label: "Formations",  to: "/about" },
     ];
 
-    // Fonction pour gérer le style dynamique des NavLinks (Desktop)
     const getNavLinkStyle = ({ isActive }) => ({
         fontSize: "0.875rem",
         color: isActive ? "#5a8fff" : "rgba(160, 190, 255, 0.75)",
@@ -70,7 +69,7 @@ export default function Header() {
                             justifyContent: "space-between",
                         }}
                     >
-                        {/* Logo / Nom - Cliquer dessus ramène à l'accueil */}
+                        {/* Logo / Nom */}
                         <NavLink to="/" style={{ textDecoration: 'none' }}>
                             <span style={{ fontSize: "1.1rem", fontWeight: 600, color: "#c8d8ff" }}>
                                 Lamour <span style={{ color: "#5a8fff", fontWeight: 400 }}>Enzo</span>
@@ -89,25 +88,24 @@ export default function Header() {
                                 </NavLink>
                             ))}
 
-                            <NavLink
-                                to="/contact"
-                                style={({ isActive }) => ({
+                            <HashLink
+                                smooth
+                                to={`${location.pathname}#contact`}
+                                style={{
                                     marginLeft: "0.5rem",
                                     fontSize: "0.875rem",
                                     fontWeight: 500,
                                     color: "#fff",
-                                    background: isActive 
-                                        ? "linear-gradient(135deg, #1a4fd6 0%, #0a2f96 100%)" 
-                                        : "linear-gradient(135deg, #3a6fff 0%, #1a4fd6 100%)",
+                                    background: "linear-gradient(135deg, #3a6fff 0%, #1a4fd6 100%)",
                                     textDecoration: "none",
                                     borderRadius: "99px",
                                     padding: "0.45rem 1.1rem",
                                     boxShadow: "0 0 16px rgba(60, 110, 255, 0.3)",
                                     transition: "all 0.2s ease"
-                                })}
+                                }}
                             >
                                 Contact
-                            </NavLink>
+                            </HashLink>
                         </nav>
 
                         {/* Burger mobile */}
@@ -160,7 +158,8 @@ export default function Header() {
                     ))}
 
                     <HashLink                        
-                        to="/#contact"
+                        smooth
+                        to={`${location.pathname}#contact`}
                         onClick={closeMenu}
                         style={{
                             marginTop: "1.5rem",
