@@ -1,4 +1,66 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+// ── Détection "prefers-reduced-motion" ───────────────────────────────────────
+const usePrefersReducedMotion = () => {
+    const [reduced, setReduced] = useState(false);
+    useEffect(() => {
+        const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+        setReduced(mq.matches);
+        const handler = (e) => setReduced(e.matches);
+        mq.addEventListener("change", handler);
+        return () => mq.removeEventListener("change", handler);
+    }, []);
+    return reduced;
+};
+
+// ── Wrapper d'animation au scroll ────────────────────────────────────────────
+// Un seul mouvement d'entrée par bloc (pas par carte individuelle) : fondu +
+// léger déplacement vers le haut la première fois que le bloc est visible.
+const Reveal = ({ children, delay = 0, style = {} }) => {
+    const ref = useRef(null);
+    const [visible, setVisible] = useState(false);
+    const reducedMotion = usePrefersReducedMotion();
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        if (reducedMotion) {
+            setVisible(true);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        observer.unobserve(el);
+                    }
+                });
+            },
+            { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+        );
+
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [reducedMotion]);
+
+    return (
+        <div
+            ref={ref}
+            style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(20px)",
+                transition: `opacity 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+                willChange: "opacity, transform",
+                ...style,
+            }}
+        >
+            {children}
+        </div>
+    );
+};
 
 // ── Séparateur ───────────────────────────────────────────────────────────────
 const Divider = () => (
@@ -11,7 +73,7 @@ const Divider = () => (
 
 // ── Sous-titre de section ────────────────────────────────────────────────────
 const SectionTitle = ({ children }) => (
-    <div style={{ textAlign: "center", padding: "3rem 1rem 2rem" }}>
+    <div style={{ textAlign: "center", padding: "3rem 1rem 1.75rem" }}>
         <p style={{
             display: "inline-block", fontSize: "0.72rem", fontWeight: 500,
             letterSpacing: "0.12em", color: "rgba(80,140,255,0.55)",
@@ -23,294 +85,141 @@ const SectionTitle = ({ children }) => (
     </div>
 );
 
-// ── Titre de sous-catégorie soft skills ──────────────────────────────────────
+// ── Titre de sous-catégorie ───────────────────────────────────────────────────
 const SubCategoryTitle = ({ children }) => (
-    <div style={{ width: "100%", maxWidth: "960px", margin: "1.5rem auto 0.5rem", padding: "0 1.5rem" }}>
-        <p style={{
-            fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em",
-            color: "#508cff", textTransform: "uppercase", marginBottom: "0.4rem",
-        }}>
-            {children}
-        </p>
-        <div style={{ height: "1px", background: "linear-gradient(to right, rgba(80,140,255,0.35), transparent)" }} />
-    </div>
+    <p style={{
+        fontSize: "0.78rem", fontWeight: 600,
+        color: "#80aaff", marginBottom: "0.6rem",
+    }}>
+        {children}
+    </p>
 );
 
-// ── Barre de niveau ──────────────────────────────────────────────────────────
-const LevelBar = ({ level, max = 5 }) => (
-    <div style={{ display: "flex", gap: "4px", margin: "0.6rem 0" }}>
+// ── Niveau (points, pas de barre décorative) ─────────────────────────────────
+const LevelDots = ({ level, max = 5 }) => (
+    <div style={{ display: "flex", gap: "3px" }} aria-label={`Niveau ${level} sur ${max}`}>
         {Array.from({ length: max }).map((_, i) => (
             <div key={i} style={{
-                height: "3px", flex: 1, borderRadius: "99px",
-                background: i < level
-                    ? "linear-gradient(90deg, #3a6fff, #80aaff)"
-                    : "rgba(80,140,255,0.12)",
-                boxShadow: i < level ? "0 0 5px rgba(60,110,255,0.4)" : "none",
+                width: "5px", height: "5px", borderRadius: "50%",
+                background: i < level ? "#508cff" : "rgba(80,140,255,0.18)",
             }} />
         ))}
     </div>
 );
 
-// ── Carte techno enrichie ────────────────────────────────────────────────────
-const TechCard = ({ src, alt, label, level, levelLabel, context, knowHow }) => (
+// ── Chip techno "coeur de stack" (mise en avant) ─────────────────────────────
+const CoreTechChip = ({ src, alt, label, level, note }) => (
     <div style={{
-        display: "flex", flexDirection: "column", gap: "0.5rem",
-        padding: "1.25rem 1.4rem", borderRadius: "16px",
-        border: "1px solid rgba(80,140,255,0.1)",
-        background: "rgba(13,17,23,0.5)",
-        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-        width: "280px",
-        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
-        cursor: "default",
+        display: "flex", alignItems: "center", gap: "0.9rem",
+        padding: "1rem 1.25rem", borderRadius: "14px",
+        border: "1px solid rgba(80,140,255,0.28)",
+        background: "rgba(80,140,255,0.06)",
+        minWidth: "220px",
+        transition: "border-color 0.2s, background 0.2s",
     }}
         onMouseEnter={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.35)";
-            e.currentTarget.style.boxShadow = "0 4px 24px rgba(30,80,200,0.15)";
-            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.borderColor = "rgba(80,140,255,0.55)";
+            e.currentTarget.style.background = "rgba(80,140,255,0.1)";
         }}
         onMouseLeave={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.1)";
-            e.currentTarget.style.boxShadow = "none";
-            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.borderColor = "rgba(80,140,255,0.28)";
+            e.currentTarget.style.background = "rgba(80,140,255,0.06)";
         }}
     >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <img src={src} alt={alt} style={{ width: "36px", height: "36px", objectFit: "contain", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 600, color: "#c8d8ff" }}>{label}</p>
-                <p style={{ margin: 0, fontSize: "0.68rem", color: "#508cff", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>{levelLabel}</p>
-            </div>
-        </div>
-        <LevelBar level={level} />
-        <div>
-            <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(128,170,255,0.45)", margin: "0 0 2px", fontWeight: 600 }}>Contexte</p>
-            <p style={{ fontSize: "0.8rem", color: "rgba(160,190,255,0.65)", lineHeight: 1.55, margin: 0 }}>{context}</p>
-        </div>
-        <div>
-            <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(128,170,255,0.45)", margin: "0 0 2px", fontWeight: 600 }}>Savoir-faire</p>
-            <p style={{ fontSize: "0.8rem", color: "rgba(160,190,255,0.65)", lineHeight: 1.55, margin: 0 }}>{knowHow}</p>
+        <img src={src} alt={alt} style={{ width: "30px", height: "30px", objectFit: "contain", flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: "0.88rem", fontWeight: 600, color: "#c8d8ff" }}>{label}</p>
+            <p style={{ margin: "1px 0 5px", fontSize: "0.74rem", color: "rgba(160,190,255,0.6)" }}>{note}</p>
+            <LevelDots level={level} />
         </div>
     </div>
 );
 
-// ── Carte soft skill enrichie ────────────────────────────────────────────────
-const SoftSkillCard = ({ icon, title, situation, analyse, profil }) => (
+// ── Chip techno secondaire (compacte) ────────────────────────────────────────
+const TechChip = ({ src, alt, label, level }) => (
     <div style={{
-        display: "flex", flexDirection: "column", gap: "0.6rem",
-        padding: "1.4rem 1.5rem", borderRadius: "16px",
-        border: "1px solid rgba(80,140,255,0.1)",
-        background: "rgba(13,17,23,0.5)",
-        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-        width: "300px",
-        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
-        cursor: "default",
-    }}
-        onMouseEnter={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.35)";
-            e.currentTarget.style.boxShadow = "0 4px 24px rgba(30,80,200,0.15)";
-            e.currentTarget.style.transform = "translateY(-3px)";
-        }}
-        onMouseLeave={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.1)";
-            e.currentTarget.style.boxShadow = "none";
-            e.currentTarget.style.transform = "translateY(0)";
-        }}
-    >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <span style={{ fontSize: "1.3rem" }}>{icon}</span>
-            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "#c8d8ff" }}>{title}</p>
-        </div>
-        <div style={{
-            width: "30px", height: "2px",
-            background: "linear-gradient(90deg, #3a6fff, #1a4fd6)",
-            borderRadius: "99px",
-            boxShadow: "0 0 8px rgba(60,110,255,0.35)",
-        }} />
-
-        {/* Situation */}
-        <div>
-            <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(128,170,255,0.45)", margin: "0 0 3px", fontWeight: 600 }}>
-                Situation concrète
-            </p>
-            <p style={{ fontSize: "0.8rem", color: "rgba(160,190,255,0.7)", lineHeight: 1.6, margin: 0 }}>{situation}</p>
-        </div>
-
-        {/* Analyse */}
-        <div>
-            <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(128,170,255,0.45)", margin: "0 0 3px", fontWeight: 600 }}>
-                Analyse
-            </p>
-            <p style={{ fontSize: "0.8rem", color: "rgba(160,190,255,0.7)", lineHeight: 1.6, margin: 0 }}>{analyse}</p>
-        </div>
-
-        {/* Profil personnel */}
-        <div>
-            <p style={{ fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(128,170,255,0.45)", margin: "0 0 3px", fontWeight: 600 }}>
-                Mon fonctionnement
-            </p>
-            <p style={{ fontSize: "0.8rem", color: "rgba(160,190,255,0.7)", lineHeight: 1.6, margin: 0 }}>{profil}</p>
-        </div>
+        display: "flex", alignItems: "center", gap: "0.6rem",
+        padding: "0.6rem 0.9rem", borderRadius: "99px",
+        border: "1px solid rgba(80,140,255,0.12)",
+        background: "rgba(13,17,23,0.4)",
+    }}>
+        <img src={src} alt={alt} style={{ width: "18px", height: "18px", objectFit: "contain", flexShrink: 0 }} />
+        <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 500, color: "#c8d8ff", whiteSpace: "nowrap" }}>{label}</p>
+        <LevelDots level={level} />
     </div>
 );
 
-// ── Carte simple (Autre) ─────────────────────────────────────────────────────
-const SimpleCard = ({ title, sub }) => (
+// ── Ligne soft skill (liste, pas de carte) ───────────────────────────────────
+const SoftSkillRow = ({ icon, title, text, isLast }) => (
     <div style={{
-        padding: "1.1rem 1.4rem", borderRadius: "14px",
-        border: "1px solid rgba(80,140,255,0.1)",
-        background: "rgba(13,17,23,0.5)",
-        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-        minWidth: "160px",
-        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
-        cursor: "default",
-    }}
-        onMouseEnter={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.35)";
-            e.currentTarget.style.boxShadow = "0 4px 24px rgba(30,80,200,0.15)";
-            e.currentTarget.style.transform = "translateY(-3px)";
-        }}
-        onMouseLeave={e => {
-            e.currentTarget.style.borderColor = "rgba(80,140,255,0.1)";
-            e.currentTarget.style.boxShadow = "none";
-            e.currentTarget.style.transform = "translateY(0)";
-        }}
-    >
-        <p style={{ fontSize: "0.9rem", fontWeight: 600, color: "#c8d8ff", margin: "0 0 0.5rem" }}>{title}</p>
-        <div style={{
-            width: "24px", height: "2px",
-            background: "linear-gradient(90deg, #3a6fff, #1a4fd6)",
-            borderRadius: "99px", marginBottom: "0.5rem",
-            boxShadow: "0 0 8px rgba(60,110,255,0.35)",
-        }} />
-        <p style={{ fontSize: "0.78rem", color: "rgba(160,190,255,0.55)", margin: 0 }}>{sub}</p>
+        display: "flex", gap: "0.85rem", alignItems: "flex-start",
+        padding: "0.85rem 0.25rem",
+        borderBottom: isLast ? "none" : "1px solid rgba(80,140,255,0.08)",
+    }}>
+        <span style={{ fontSize: "1.05rem", lineHeight: 1.4 }}>{icon}</span>
+        <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(190,205,255,0.8)", lineHeight: 1.55 }}>
+            <span style={{ fontWeight: 600, color: "#c8d8ff" }}>{title}. </span>
+            {text}
+        </p>
+    </div>
+);
+
+// ── Chip simple (Autre) ──────────────────────────────────────────────────────
+const SimpleChip = ({ title, sub }) => (
+    <div style={{
+        display: "flex", alignItems: "baseline", gap: "0.5rem",
+        padding: "0.6rem 1rem", borderRadius: "99px",
+        border: "1px solid rgba(80,140,255,0.12)",
+        background: "rgba(13,17,23,0.4)",
+    }}>
+        <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 600, color: "#c8d8ff" }}>{title}</p>
+        <p style={{ margin: 0, fontSize: "0.78rem", color: "rgba(160,190,255,0.55)" }}>{sub}</p>
     </div>
 );
 
 // ── Composant principal ───────────────────────────────────────────────────────
 const Competences = () => {
-    const techs = [
+    const coreStack = [
         {
             src: "https://upload.wikimedia.org/wikipedia/fr/2/2e/Java_Logo.svg",
-            alt: "Java", label: "Java · Spring Boot",
-            level: 4, levelLabel: "Avancé",
-            context: "Alternance CA2BM — backend du projet CEVDPilot (gestion de pesées industrielles).",
-            knowHow: "API REST, Spring Security, JPA/Hibernate, architecture controller / service / repository.",
+            alt: "Java", label: "Java · Spring Boot", level: 4,
+            note: "Backend CEVDPilot (CA2BM)",
         },
         {
             src: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
-            alt: "React", label: "React · TypeScript",
-            level: 4, levelLabel: "Avancé",
-            context: "Frontend CEVDPilot (CA2BM) et projet universitaire CHEQA (équipe de 5, 1 semaine).",
-            knowHow: "Composants réactifs, gestion d'état, consommation d'API REST, typage strict.",
+            alt: "React", label: "React · TypeScript", level: 4,
+            note: "Frontend CEVDPilot + CHEQA",
         },
         {
             src: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Database-postgres.svg",
-            alt: "SQL", label: "SQL · BDD",
-            level: 4, levelLabel: "Avancé",
-            context: "Projet universitaire BDD et intégration JPA en alternance à la CA2BM.",
-            knowHow: "Conception MCD → MLD, requêtes complexes, jointures, agrégations, optimisation des index.",
+            alt: "SQL", label: "SQL · BDD", level: 4,
+            note: "Modélisation, requêtes complexes",
         },
-        {
-            src: "https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg",
-            alt: "HTML", label: "HTML · CSS",
-            level: 3, levelLabel: "Intermédiaire",
-            context: "Intégration de maquettes sur plusieurs projets web universitaires et personnels.",
-            knowHow: "Structure sémantique, responsive (Flexbox, Grid), animations CSS.",
-        },
-        {
-            src: "https://upload.wikimedia.org/wikipedia/commons/1/18/C_Programming_Language.svg",
-            alt: "C", label: "C",
-            level: 3, levelLabel: "Intermédiaire",
-            context: "Cours de systèmes et algorithmique en 1ʳᵉ et 2ᵉ année de BUT.",
-            knowHow: "Gestion mémoire, pointeurs, structures de données (listes chaînées, arbres).",
-        },
-        {
-            src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg",
-            alt: "Git", label: "Git · GitHub",
-            level: 4, levelLabel: "Avancé",
-            context: "Utilisé sur tous les projets (CA2BM, universitaires, personnels).",
-            knowHow: "Branches, pull requests, résolution de conflits, revue de code.",
-        },
+    ];
+
+    const otherTechs = [
+        { src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg", alt: "Git", label: "Git · GitHub", level: 4 },
+        { src: "https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg", alt: "HTML", label: "HTML · CSS", level: 3 },
+        { src: "https://upload.wikimedia.org/wikipedia/commons/1/18/C_Programming_Language.svg", alt: "C", label: "C", level: 3 },
     ];
 
     const softManiereDetre = [
-        {
-            icon: "🧭",
-            title: "Posture professionnelle",
-            situation: "En alternance à la CA2BM, j'ai intégré une équipe de développeurs expérimentés dès le premier jour, avec des responsabilités réelles sur le projet CEVDPilot.",
-            analyse: "J'ai rapidement adopté les codes de l'entreprise : ponctualité, autonomie sur mes tâches, prise de notes en réunion et respect des process internes.",
-            profil: "Je m'adapte naturellement aux environnements structurés et perçois le cadre professionnel comme un levier de progression, pas une contrainte.",
-        },
-        {
-            icon: "🧘",
-            title: "Gestion du stress",
-            situation: "Lors du projet CHEQA, livraison d'une application cliente en une semaine avec une équipe de 5 développeurs.",
-            analyse: "Face aux imprévus techniques, j'ai appris à prioriser les fonctionnalités critiques et à communiquer clairement sur les blocages plutôt que de les gérer seul.",
-            profil: "Le stress me pousse à structurer mes priorités. Je tends à décomposer les problèmes complexes en tâches actionnables pour reprendre le contrôle.",
-        },
-        {
-            icon: "🔄",
-            title: "Adaptabilité",
-            situation: "À la CA2BM, j'ai rejoint un projet existant avec une base de code déjà en place, des conventions établies et des choix techniques à respecter.",
-            analyse: "J'ai su monter en compétences rapidement sur les outils internes et m'intégrer sans imposer mes habitudes, tout en apportant des propositions d'amélioration.",
-            profil: "Je me sens à l'aise dans des environnements nouveaux. La curiosité technique me permet de m'adapter sans attendre d'avoir tout compris avant d'agir.",
-        },
-        {
-            icon: "💪",
-            title: "Engagement & responsabilités",
-            situation: "Sur CEVDPilot, j'ai été responsable de modules complets — de la conception de l'API à l'interface — avec un impact financier réel (360 000 €/an d'optimisation).",
-            analyse: "Savoir que mon travail avait un impact concret sur l'entreprise a renforcé mon sens des responsabilités et mon exigence sur la qualité du code livré.",
-            profil: "Je m'investis pleinement dès lors que je comprends le sens de ma contribution. L'impact réel est un moteur fort pour moi.",
-        },
+        { icon: "🧭", title: "Posture professionnelle", text: "Intégré une équipe expérimentée dès le premier jour, à l'aise dans un cadre structuré." },
+        { icon: "🧘", title: "Gestion du stress", text: "Sous pression (CHEQA, livraison en 1 semaine), je priorise et communique plutôt que de subir." },
+        { icon: "🔄", title: "Adaptabilité", text: "Rejoint un projet existant sans tout casser, en apprenant vite les conventions en place." },
+        { icon: "💪", title: "Engagement", text: "Responsable de modules complets sur CEVDPilot, exigeant sur la qualité du code livré." },
     ];
 
     const softCommunication = [
-        {
-            icon: "🗣️",
-            title: "Communication professionnelle",
-            situation: "Présentations de sprint à la CA2BM et restitution du projet CHEQA devant un porteur de projet externe.",
-            analyse: "J'ai travaillé ma capacité à vulgariser des choix techniques devant des interlocuteurs non-développeurs, en adaptant le niveau de détail au public.",
-            profil: "Je préfère une communication directe et illustrée par des exemples concrets. L'oral en contexte préparé est un exercice dans lequel je progresse régulièrement.",
-        },
-        {
-            icon: "👂",
-            title: "Écoute & reformulation",
-            situation: "Lors des daily stand-ups en alternance et des ateliers de cadrage du projet CHEQA avec le porteur de projet.",
-            analyse: "Reformuler les besoins du client m'a permis d'éviter plusieurs malentendus et de m'assurer que les fonctionnalités développées correspondaient aux attentes réelles.",
-            profil: "J'écoute avant de répondre. La reformulation est pour moi un réflexe pour valider la compréhension mutuelle avant d'agir.",
-        },
-        {
-            icon: "✅",
-            title: "Réception des feedbacks",
-            situation: "Revues de code régulières à la CA2BM par des développeurs seniors sur mes pull requests GitHub.",
-            analyse: "Les retours, parfois exigeants, m'ont permis d'améliorer significativement la qualité de mon code. J'ai appris à distinguer critique du code et critique personnelle.",
-            profil: "Je reçois le feedback comme un outil de progression. Je note systématiquement les retours récurrents pour ne pas reproduire les mêmes erreurs.",
-        },
+        { icon: "🗣️", title: "Communication", text: "Sais adapter mon discours technique face à un public non-développeur." },
+        { icon: "👂", title: "Écoute", text: "Je reformule systématiquement pour vérifier que j'ai bien compris le besoin." },
+        { icon: "✅", title: "Feedback", text: "Je prends les retours de code comme un levier de progression, pas une critique." },
     ];
 
     const softCollectif = [
-        {
-            icon: "🤝",
-            title: "Travail en équipe",
-            situation: "Projet CHEQA : 5 développeurs, 1 semaine, livraison à un client réel. Répartition des tâches, synchronisation quotidienne, intégration continue.",
-            analyse: "J'ai appris à ne pas travailler en silo, à anticiper les dépendances entre les tâches des autres et à communiquer proactivement sur mes blocages.",
-            profil: "Je fonctionne mieux en équipe qu'en isolation. La dynamique de groupe me stimule et je m'implique naturellement dans la cohésion du collectif.",
-        },
-        {
-            icon: "⚡",
-            title: "Prise d'initiative",
-            situation: "Sur CEVDPilot, j'ai proposé et mis en place une couche de validation des données côté API sans que cela soit initialement prévu dans les spécifications.",
-            analyse: "Cette initiative a été validée par le tuteur et intégrée au projet, réduisant les erreurs de saisie en production. Elle m'a aussi valu plus d'autonomie par la suite.",
-            profil: "Je n'attends pas qu'on me demande d'améliorer quelque chose si je vois un point de fragilité. L'initiative est pour moi une responsabilité, pas une prise de risque.",
-        },
-        {
-            icon: "🔧",
-            title: "Gestion des désaccords",
-            situation: "Lors du projet CHEQA, désaccord sur le choix de la stack technique entre deux membres de l'équipe en début de sprint.",
-            analyse: "J'ai proposé de lister les critères objectifs (délai, compétences disponibles, maintenabilité) pour trancher collectivement, ce qui a permis de débloquer la situation sans tension.",
-            profil: "Face aux désaccords, je cherche d'abord à comprendre la position de l'autre avant de défendre la mienne. J'utilise les faits et critères concrets comme terrain neutre.",
-        },
+        { icon: "🤝", title: "Équipe", text: "Je coordonne mieux en groupe qu'en solo, j'anticipe les dépendances entre tâches." },
+        { icon: "⚡", title: "Initiative", text: "Je propose des améliorations non demandées quand je vois un point faible." },
+        { icon: "🔧", title: "Désaccords", text: "Je cherche des critères objectifs pour trancher plutôt que d'imposer mon avis." },
     ];
 
     const autres = [
@@ -318,12 +227,20 @@ const Competences = () => {
         { title: "Anglais", sub: "Niveau B2" },
     ];
 
+    const listGroupStyle = {
+        maxWidth: "620px", margin: "0 auto 2rem",
+        padding: "0.25rem 1.25rem",
+        borderRadius: "14px",
+        border: "1px solid rgba(80,140,255,0.1)",
+        background: "rgba(13,17,23,0.35)",
+    };
+
     return (
         <>
             <section id="competences" />
 
             {/* ── Titre ── */}
-            <div style={{ textAlign: "center", padding: "5rem 1rem 1rem" }}>
+            <Reveal style={{ textAlign: "center", padding: "5rem 1rem 1rem" }}>
                 <p style={{
                     fontSize: "0.75rem", letterSpacing: "0.15em",
                     color: "rgba(80,140,255,0.55)", textTransform: "uppercase", marginBottom: "0.5rem",
@@ -342,66 +259,56 @@ const Competences = () => {
                     borderRadius: "99px", margin: "1rem auto 0",
                     boxShadow: "0 0 12px rgba(60,110,255,0.4)",
                 }} />
-            </div>
+            </Reveal>
 
-            {/* ── Informatique ── */}
-            <SectionTitle>Compétences Techniques</SectionTitle>
-            <div style={{
-                display: "flex", flexWrap: "wrap",
-                justifyContent: "center", gap: "1rem",
-                padding: "0 1.5rem 2rem",
-                maxWidth: "960px", margin: "0 auto",
-            }}>
-                {techs.map(t => <TechCard key={t.label} {...t} />)}
-            </div>
+            {/* ── Stack technique ── */}
+            <SectionTitle>Stack technique</SectionTitle>
+            <Reveal style={{ padding: "0 1.5rem 1rem", maxWidth: "960px", margin: "0 auto" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.9rem" }}>
+                    {coreStack.map(t => <CoreTechChip key={t.label} {...t} />)}
+                </div>
+            </Reveal>
+            <Reveal delay={0.1} style={{ padding: "0 1.5rem 2rem", maxWidth: "960px", margin: "0 auto" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.6rem" }}>
+                    {otherTechs.map(t => <TechChip key={t.label} {...t} />)}
+                </div>
+            </Reveal>
 
             <Divider />
 
             {/* ── Soft Skills ── */}
-            <SectionTitle>Compétences Comportementales</SectionTitle>
+            <SectionTitle>Compétences comportementales</SectionTitle>
 
-            <SubCategoryTitle>Manière d'être</SubCategoryTitle>
-            <div style={{
-                display: "flex", flexWrap: "wrap",
-                justifyContent: "center", gap: "1rem",
-                padding: "1rem 1.5rem 2rem",
-                maxWidth: "960px", margin: "0 auto",
-            }}>
-                {softManiereDetre.map(s => <SoftSkillCard key={s.title} {...s} />)}
-            </div>
+            <Reveal style={listGroupStyle}>
+                <SubCategoryTitle>Manière d'être</SubCategoryTitle>
+                {softManiereDetre.map((s, i) => (
+                    <SoftSkillRow key={s.title} {...s} isLast={i === softManiereDetre.length - 1} />
+                ))}
+            </Reveal>
 
-            <SubCategoryTitle>Manière de communiquer</SubCategoryTitle>
-            <div style={{
-                display: "flex", flexWrap: "wrap",
-                justifyContent: "center", gap: "1rem",
-                padding: "1rem 1.5rem 2rem",
-                maxWidth: "960px", margin: "0 auto",
-            }}>
-                {softCommunication.map(s => <SoftSkillCard key={s.title} {...s} />)}
-            </div>
+            <Reveal delay={0.05} style={listGroupStyle}>
+                <SubCategoryTitle>Manière de communiquer</SubCategoryTitle>
+                {softCommunication.map((s, i) => (
+                    <SoftSkillRow key={s.title} {...s} isLast={i === softCommunication.length - 1} />
+                ))}
+            </Reveal>
 
-            <SubCategoryTitle>Manière de travailler avec les autres</SubCategoryTitle>
-            <div style={{
-                display: "flex", flexWrap: "wrap",
-                justifyContent: "center", gap: "1rem",
-                padding: "1rem 1.5rem 2rem",
-                maxWidth: "960px", margin: "0 auto",
-            }}>
-                {softCollectif.map(s => <SoftSkillCard key={s.title} {...s} />)}
-            </div>
+            <Reveal delay={0.1} style={listGroupStyle}>
+                <SubCategoryTitle>Manière de travailler avec les autres</SubCategoryTitle>
+                {softCollectif.map((s, i) => (
+                    <SoftSkillRow key={s.title} {...s} isLast={i === softCollectif.length - 1} />
+                ))}
+            </Reveal>
 
             <Divider />
 
             {/* ── Autre ── */}
             <SectionTitle>Autre</SectionTitle>
-            <div style={{
-                display: "flex", flexWrap: "wrap",
-                justifyContent: "center", gap: "1rem",
-                padding: "0 1.5rem 5rem",
-                maxWidth: "900px", margin: "0 auto",
-            }}>
-                {autres.map(a => <SimpleCard key={a.title} {...a} />)}
-            </div>
+            <Reveal style={{ padding: "0 1.5rem 5rem" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem" }}>
+                    {autres.map(a => <SimpleChip key={a.title} {...a} />)}
+                </div>
+            </Reveal>
         </>
     );
 };
