@@ -204,6 +204,7 @@ const Competences = () => {
     ];
 
     const softManiereDetre = [
+<<<<<<< HEAD
         { icon: "🧭", title: "Posture professionnelle", text: "Intégré une équipe expérimentée dès le premier jour, à l'aise dans un cadre structuré." },
         { icon: "🧘", title: "Gestion du stress", text: "Sous pression (CHEQA, livraison en 1 semaine), je priorise et communique plutôt que de subir." },
         { icon: "🔄", title: "Adaptabilité", text: "Rejoint un projet existant sans tout casser, en apprenant vite les conventions en place." },
@@ -220,6 +221,77 @@ const Competences = () => {
         { icon: "🤝", title: "Équipe", text: "Je coordonne mieux en groupe qu'en solo, j'anticipe les dépendances entre tâches." },
         { icon: "⚡", title: "Initiative", text: "Je propose des améliorations non demandées quand je vois un point faible." },
         { icon: "🔧", title: "Désaccords", text: "Je cherche des critères objectifs pour trancher plutôt que d'imposer mon avis." },
+=======
+        {
+            icon: "🧘",
+            title: "Gestion du stress",
+            situation: "Lors du projet CHEQA, livraison en une semaine avec 5 développeurs.",
+            analyse: "J'ai appris à prioriser les fonctionnalités critiques et à communiquer clairement sur les blocages.",
+            profil: "Le stress me pousse à décomposer les problèmes complexes en tâches actionnables.",
+        },
+        {
+            icon: "🔄",
+            title: "Adaptabilité",
+            situation: "À la CA2BM, j'ai transformé des codes Python existants en code Java Spring JPA.",
+            analyse: "J'ai su monter rapidement en compétences sur les nouveaux outils et conventions.",
+            profil: "Je me sens à l'aise pour apprendre de nouvelles technos. La curiosité technique me permet d'avancer sans tout comprendre avant d'agir.",
+        },
+        {
+            icon: "💪",
+            title: "Engagement & responsabilités",
+            situation: "Sur CEVDPilot, j'ai été responsable de modules complets avec un impact financier réel (360 000 €/an d'optimisation).",
+            analyse: "Savoir que mon travail avait un impact concret a renforcé mon sens des responsabilités.",
+            profil: "Je m'investis pleinement quand je comprends le sens de ma contribution.",
+        },
+    ];
+
+    const softCommunication = [
+        {
+            icon: "🗣️",
+            title: "Communication professionnelle",
+            situation: "Présentations du projet CEVDPilot. Présentations du projet CHEQA devant le porteur de projet externe.",
+            analyse: "J'ai travaillé ma capacité à vulgariser les choix techniques en adaptant le niveau de détail au public.",
+            profil: "Je préfère une communication directe et illustrée par des exemples concrets.",
+        },
+        {
+            icon: "👂",
+            title: "Écoute & reformulation",
+            situation: "Lors des ateliers de cadrage du projet CHEQA avec le porteur de projet.",
+            analyse: "Reformuler les besoins du client m'a permis d'éviter les malentendus.",
+            profil: "J'écoute avant de répondre. La reformulation est mon réflexe pour valider la compréhension mutuelle.",
+        },
+        {
+            icon: "✅",
+            title: "Réception des feedbacks",
+            situation: "Feedback des utilisateurs de CEVDPilot sur l'interface.",
+            analyse: "Les utilisateurs trouvaient certains éléments graphiques confus. J'ai modifié l'affichage et les couleurs.",
+            profil: "Je reçois le feedback comme une chance de mieux servir les utilisateurs.",
+        },
+    ];
+
+    const softCollectif = [
+        {
+            icon: "🤝",
+            title: "Travail en équipe",
+            situation: "Projet CHEQA : 5 développeurs, 1 semaine, livraison à un client réel.",
+            analyse: "J'ai appris à ne pas travailler en silo et à anticiper les dépendances entre les tâches.",
+            profil: "Je fonctionne mieux en équipe. La dynamique de groupe me stimule.",
+        },
+        {
+            icon: "⚡",
+            title: "Prise d'initiative",
+            situation: "Sur CEVDPilot, j'ai proposé une couche de validation des données côté API.",
+            analyse: "Cette initiative a réduit les erreurs de saisie en production et m'a valu plus d'autonomie.",
+            profil: "Je n'attends pas qu'on me demande d'améliorer quelque chose si je vois un problème.",
+        },
+        {
+            icon: "🔧",
+            title: "Gestion des désaccords",
+            situation: "Lors du projet CHEQA, désaccord sur la stack technique en début de sprint.",
+            analyse: "J'ai proposé de lister les critères objectifs pour trancher collectivement.",
+            profil: "Je cherche d'abord à comprendre la position de l'autre. J'utilise les faits comme terrain neutre.",
+        },
+>>>>>>> 3f0c1410c523f644ace9e76ea0bd822ffd178bdb
     ];
 
     const autres = [
